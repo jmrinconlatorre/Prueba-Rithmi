@@ -15,7 +15,7 @@ class App extends Component {
 
 		this.state = {
 			loading: false,
-			data: [],
+			dato: [],
 			endPoint: 'https://rithmi-frontend-test.s3-eu-west-1.amazonaws.com/samples.json'
 		};
 
@@ -23,16 +23,47 @@ class App extends Component {
 	}
 
 	componentDidMount() {
-		this.getDataFromApiAsync();		
+		this.getDataFromApiAsync();
+	}
+
+	orderByDate(obj) {
+		let objFinal = [];
+		let found = false;
+
+		for (let i = 0; i < obj.length; i++) {
+			let date = new Date(obj[i].date);
+
+			let heartRate = ' ' + obj[i].heartRate.toString();
+			let hasAnomaly = ' ' + obj[i].hasAnomaly.toString();
+
+			let objAux = [ date.toLocaleTimeString(), heartRate, hasAnomaly ];
+
+			for (let j = 0, found = false; j < objFinal.length && !found; j++) {
+				if (objFinal[j].date === date.toLocaleDateString()) {
+					objFinal[j].data.push(objAux);
+
+					found = true;
+				}
+			}
+
+			if (!found) {
+				objFinal.push({
+					date: date.toLocaleDateString(),
+					data: [ objAux ]
+				});
+			}
+		}
+
+		return objFinal;
 	}
 
 	async getDataFromApiAsync() {
 		try {
 			let response = await fetch(this.state.endPoint);
-			let json = await response.json();
+			let jsonObj = await response.json();
 
 			this.setState({
-				data: json,
+				dato: this.orderByDate(jsonObj),
 				loading: false
 			});
 		} catch (error) {
@@ -41,7 +72,7 @@ class App extends Component {
 	}
 
 	render() {
-		const { data, loading } = this.state;
+		const { dato, loading } = this.state;
 
 		if (loading) {
 			return (
@@ -50,34 +81,43 @@ class App extends Component {
 				</View>
 			);
 		}
-		
+
 		return (
 			<View style={styles.container}>
 				<Text style={styles.text}>Listado de frecuencias </Text>
+
+				<SafeAreaView style={styles.container}>
+					<SectionList
+						sections={dato}
+						renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
+						renderSectionHeader={({ section }) => <Text style={styles.header}>{section.date}</Text>}
+					/>
+				</SafeAreaView>
 			</View>
 		);
 	}
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#2980b9',
-		justifyContent: 'center'
-	},
 	text: {
 		fontSize: 40,
-		color: '#FFF',
+		color: '#182C61',
 		fontWeight: 'bold'
 	},
+	container: {
+		flex: 1,
+		marginTop: 20,
+		marginHorizontal: 16
+	},
 	item: {
-		backgroundColor: '#f9c2ff',
+		backgroundColor: '#1B9CFC',
 		padding: 20,
-		marginVertical: 8
+		marginVertical: 8,
+		color: '#2C3A47'
 	},
 	header: {
 		fontSize: 32,
-		backgroundColor: '#000'
+		backgroundColor: '#fff'
 	},
 	title: {
 		fontSize: 24
