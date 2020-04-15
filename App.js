@@ -26,35 +26,127 @@ class App extends Component {
 		this.getDataFromApiAsync();
 	}
 
-	orderByDate(obj) {
+	orderByData(obj) {
 		let objFinal = [];
 		let found = false;
+		let j;
 
 		for (let i = 0; i < obj.length; i++) {
 			let date = new Date(obj[i].date);
+			let year = date.getFullYear();
+			let day = date.getDate();
+			let month = date.getMonth();
+			let dayOfWeek = date.getDay();
 
-			let heartRate = ' ' + obj[i].heartRate.toString();
-			let hasAnomaly = ' ' + obj[i].hasAnomaly.toString();
+			let heartRate = ' Pulsaciones ' + obj[i].heartRate.toString();
+			let hasAnomaly = ' Anomalia ' + obj[i].hasAnomaly.toString();
 
-			let objAux = [ date.toLocaleTimeString(), heartRate, hasAnomaly ];
+			let arrayAux = [ date.toLocaleTimeString(), heartRate, hasAnomaly ];
 
-			for (let j = 0, found = false; j < objFinal.length && !found; j++) {
+			for (j = 0, found = false; j < objFinal.length && !found; j++) {
 				if (objFinal[j].date === date.toLocaleDateString()) {
-					objFinal[j].data.push(objAux);
-
+					objFinal[j].data.push(arrayAux);
 					found = true;
 				}
 			}
 
-			if (!found) {
+			if (j === objFinal.length) {
+				if (date.toLocaleDateString() === '02/01/20') console.log(date.toLocaleDateString());
 				objFinal.push({
 					date: date.toLocaleDateString(),
-					data: [ objAux ]
+					//date: this.getSpanishDay(dayOfWeek)+' '+day+' de '+this.getSpanishMonth(month),
+					data: [ arrayAux ],
+					dateOrderBy: year + '/' + month + '/' + day
 				});
 			}
 		}
 
+		objFinal.sort((a, b) => {
+			if (a.dateOrderBy > b.dateOrderBy) {
+				return 1;
+			}
+			if (a.dateOrderBy < b.dateOrderBy) {
+				return -1;
+			}
+			return 0;
+		});
+
 		return objFinal;
+	}
+
+	getSpanishDay(dayOfWeek) {
+		let day;
+
+		switch (dayOfWeek) {
+			case 1:
+				day = 'Lunes';
+				break;
+			case 2:
+				day = 'Martes';
+				break;
+			case 3:
+				day = 'Miercoles';
+				break;
+			case 4:
+				day = 'Jueves';
+				break;
+			case 5:
+				day = 'Viernes';
+				break;
+			case 6:
+				day = 'Sábado';
+				break;
+			case 0:
+				day = 'Domingo';
+				break;
+		}
+
+		return day;
+	}
+
+	getSpanishMonth(day) {
+		let month;
+
+		switch (day) {
+			case 0:
+				month = 'enero';
+				break;
+			case 1:
+				month = 'febrero';
+				break;
+			case 2:
+				month = 'marzo';
+				break;
+			case 3:
+				month = 'abril';
+				break;
+			case 4:
+				month = 'mayo';
+				break;
+			case 5:
+				month = 'junio';
+				break;
+			case 6:
+				month = 'julio';
+				break;
+			case 7:
+				month = 'agosto';
+				break;
+			case 8:
+				month = 'septiembre';
+				break;
+			case 9:
+				month = 'octubre';
+				break;
+			case 10:
+				month = 'noviembre';
+				break;
+			case 11:
+				month = 'diciembre';
+				break;
+		}
+
+		return month;
 	}
 
 	async getDataFromApiAsync() {
@@ -63,7 +155,7 @@ class App extends Component {
 			let jsonObj = await response.json();
 
 			this.setState({
-				dato: this.orderByDate(jsonObj),
+				dato: this.orderByData(jsonObj),
 				loading: false
 			});
 		} catch (error) {
