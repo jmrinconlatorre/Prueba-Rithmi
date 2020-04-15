@@ -10,6 +10,11 @@ Clonar el proyecto con la instrucción
 git clone 'dirección_del_repositorio'
 ```
 
+Cambiar a la rama develop
+```
+git checkout develop
+```
+
 A continuación para instalar el proyecto sus dependecias 
 ```
 npm install
