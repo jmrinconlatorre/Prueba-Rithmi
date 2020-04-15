@@ -37,26 +37,32 @@ class App extends Component {
 			let day = date.getDate();
 			let month = date.getMonth();
 			let dayOfWeek = date.getDay();
+			let dateOrdered = year + '/' + month + '/' + day;
+			let anomalyType;
 
-			let heartRate = ' Pulsaciones ' + obj[i].heartRate.toString();
-			let hasAnomaly = ' Anomalia ' + obj[i].hasAnomaly.toString();
-
-			let arrayAux = [ date.toLocaleTimeString(), heartRate, hasAnomaly ];
+			let heartRate = '   ' + obj[i].heartRate.toString() + ' ppm ';			
+			if(obj[i].hasAnomaly){
+				anomalyType = ' - Anomalía detectada - ';
+			}
+			else{
+				anomalyType = ' - Pulso normal -';
+			}
+			
+			let arrayAux = [ date.toLocaleTimeString(), heartRate, anomalyType ];
 
 			for (j = 0, found = false; j < objFinal.length && !found; j++) {
-				if (objFinal[j].date === date.toLocaleDateString()) {
+				if (objFinal[j].dateOrderBy === dateOrdered) {
 					objFinal[j].data.push(arrayAux);
+					objFinal[j].data.sort();
 					found = true;
 				}
 			}
 
 			if (j === objFinal.length) {
-				if (date.toLocaleDateString() === '02/01/20') console.log(date.toLocaleDateString());
 				objFinal.push({
-					date: date.toLocaleDateString(),
-					//date: this.getSpanishDay(dayOfWeek)+' '+day+' de '+this.getSpanishMonth(month),
+					date: this.getSpanishDay(dayOfWeek) + ' ' + day + ' de ' + this.getSpanishMonth(month),
 					data: [ arrayAux ],
-					dateOrderBy: year + '/' + month + '/' + day
+					dateOrderBy: dateOrdered
 				});
 			}
 		}
@@ -85,7 +91,7 @@ class App extends Component {
 				day = 'Martes';
 				break;
 			case 3:
-				day = 'Miercoles';
+				day = 'Miércoles';
 				break;
 			case 4:
 				day = 'Jueves';
